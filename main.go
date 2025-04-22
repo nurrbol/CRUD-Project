@@ -7,9 +7,10 @@ import (
 )
 
 func main() {
-	db.InitDB() // ✅ DB және миграция
-
+	db.InitDB()
 	r := gin.Default()
-	routes.SetupCinemaRoutes(r, db.DB) // db.DB - GORM instance
+
+	routes.SetupRoutes(r, db.DB)
+
 	r.Run(":8080")
 }

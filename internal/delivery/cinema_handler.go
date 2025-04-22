@@ -31,7 +31,8 @@ func (h *CinemaHandler) GetCinema(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid cinema ID"})
 		return
 	}
-	cinema, err := h.service.GetCinemaByID(id)
+	userID := c.GetUint("userID")
+	cinema, err := h.service.GetCinemaByID(id, userID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Cinema not found"})
 		return
@@ -45,6 +46,8 @@ func (h *CinemaHandler) CreateCinema(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
+	userID := c.GetUint("userID")
+	cinema.UserID = userID
 	if err := h.service.CreateCinema(&cinema); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create cinema"})
 		return
@@ -63,8 +66,9 @@ func (h *CinemaHandler) UpdateCinema(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
-	if err := h.service.UpdateCinema(id, &cinema); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Cinema not found"})
+	userID := c.GetUint("userID")
+	if err := h.service.UpdateCinema(id, userID, &cinema); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Cinema not found or unauthorized"})
 		return
 	}
 	c.JSON(http.StatusOK, cinema)
@@ -76,8 +80,9 @@ func (h *CinemaHandler) DeleteCinema(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid cinema ID"})
 		return
 	}
-	if err := h.service.DeleteCinema(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Cinema not found"})
+	userID := c.GetUint("userID")
+	if err := h.service.DeleteCinema(id, userID); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Cinema not found or unauthorized"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Cinema deleted successfully"})

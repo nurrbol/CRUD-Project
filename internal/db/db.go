@@ -7,6 +7,7 @@ import (
 	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
+	"github.com/nurbol/cinema/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -50,10 +51,16 @@ func InitDB() {
 		log.Fatal("migration up error:", err)
 	}
 
-	gormDB, err := gorm.Open(postgres.New(postgres.Config{Conn: sqlDB}), &gorm.Config{})
+	// ✔️ GORM тек DSN арқылы ашылады
+	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("gorm.Open error:", err)
 	}
 
 	DB = gormDB
+
+	// 👇 AutoMigrate осы жерде
+	if err := DB.AutoMigrate(&models.User{}); err != nil {
+		log.Fatal("AutoMigrate error:", err)
+	}
 }
