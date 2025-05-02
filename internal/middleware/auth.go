@@ -23,7 +23,21 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		userID := uint(claims["user_id"].(float64))
+
+		roleRaw, ok := claims["role"]
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Role not found in token"})
+			return
+		}
+
+		role, ok := roleRaw.(string)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid role format"})
+			return
+		}
+
 		c.Set("userID", userID)
+		c.Set("role", role)
 		c.Next()
 	}
 }

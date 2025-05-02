@@ -19,12 +19,17 @@ func Register(c *gin.Context) {
 	}
 
 	hashed, _ := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-	user := models.User{Username: input.Username, Password: string(hashed)}
+	user := models.User{
+		Username: input.Username,
+		Password: string(hashed),
+		Role:     "user",
+	}
 
 	if err := db.DB.Create(&user).Error; err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered"})
 }
 
@@ -50,18 +55,17 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, _ := GenerateJWT(user.ID)
+	token, _ := GenerateJWT(user.ID, user.Role)
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func Me(c *gin.Context) {
 	userID := c.GetUint("userID")
-
 	var user models.User
 	db.DB.First(&user, userID)
-
 	c.JSON(http.StatusOK, gin.H{
 		"id":       user.ID,
 		"username": user.Username,
+		"role":     user.Role,
 	})
 }

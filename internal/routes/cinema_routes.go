@@ -33,8 +33,12 @@ func setupCinemaRoutes(r *gin.Engine, db *gorm.DB) {
 	{
 		protected.GET("/", cinemaHandler.GetAllCinemas)
 		protected.GET("/:id", cinemaHandler.GetCinema)
-		protected.POST("/", cinemaHandler.CreateCinema)
-		protected.PUT("/:id", cinemaHandler.UpdateCinema)
-		protected.DELETE("/:id", cinemaHandler.DeleteCinema)
+
+		adminRoutes := protected.Group("/", middleware.AdminOnly())
+		{
+			adminRoutes.POST("/", cinemaHandler.CreateCinema)
+			adminRoutes.PUT("/:id", cinemaHandler.UpdateCinema)
+			adminRoutes.DELETE("/:id", cinemaHandler.DeleteCinema)
+		}
 	}
 }
