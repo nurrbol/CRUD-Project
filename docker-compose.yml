@@ -12,7 +12,10 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=postgres
     ports:
-      - "8080:8080"
+      - "8000:8080"
+    volumes:
+      - ./internal/db/migrations:/app/internal/db/migrations
+
 
   postgres:
     image: postgres:15
